@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GRAD Wallet</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(-45deg, #020617, #1e3a8a, #6d28d9, #06b6d4);
+  background-size: 400% 400%;
+  animation: gradientBG 10s ease infinite;
+  color: white;
+}
+
+@keyframes gradientBG {
+  0% {background-position: 0% 50%;}
+  50% {background-position: 100% 50%;}
+  100% {background-position: 0% 50%;}
+}
+
+header {
+  text-align: center;
+  padding: 20px;
+  font-size: 30px;
+  font-weight: bold;
+  background: linear-gradient(90deg, #38bdf8, #6366f1, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.container {
+  max-width: 950px;
+  margin: auto;
+  padding: 20px;
+}
+
+.card {
+  background: rgba(30,41,59,0.75);
+  backdrop-filter: blur(12px);
+  padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 0 25px rgba(56,189,248,0.3),
+              0 0 40px rgba(168,85,247,0.2);
+  transition: 0.3s;
+}
+.card:hover {
+  transform: translateY(-6px) scale(1.01);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+input {
+  padding: 10px;
+  width: 95%;
+  margin: 5px 0;
+  border-radius: 8px;
+  border: none;
+  background: #020617;
+  color: white;
+}
+
+button {
+  padding: 10px 15px;
+  background: linear-gradient(45deg, #38bdf8, #6366f1, #a855f7);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+  color: white;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+button:hover {
+  transform: scale(1.07);
+  box-shadow: 0 0 15px #38bdf8,
+              0 0 20px #a855f7;
+}
+
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 12px #38bdf8;
+}
+
+.tx {
+  padding: 8px;
+  margin: 5px 0;
+  background: rgba(255,255,255,0.05);
+  border-radius: 6px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(5px);}
+  to {opacity: 1;}
+}
+
+/* AI CHAT */
+.chatMsg {
+  margin: 5px 0;
+  padding: 8px;
+  border-radius: 8px;
+  max-width: 90%;
+  animation: fadeIn 0.3s ease;
+}
+
+.bot {
+  background: #020617;
+  border-left: 3px solid #38bdf8;
+}
+
+.user {
+  background: #22c55e;
+  color: black;
+}
+
+.typing {
+  font-style: italic;
+  opacity: 0.7;
+}
+</style>
+
+</head>
+
+<body>
+<div style="display:flex; justify-content:space-around; padding:10px; background:#020617;">
+  <button onclick="showPage('home')">🏠 Home</button>
+  <button onclick="showPage('profile')">👤 Profile</button>
+  <button onclick="showPage('settings')">⚙️ Settings</button>
+</div>
+<header>🚀 GRAD Wallet</header>
+
+<div class="container" id="home">
+
+<div class="card">
+<h3>💼 Wallet</h3>
+<p><b>Address:</b> <span id="address">Not created</span></p>
+<p><b>Balance:</b> <span id="balance">0 SHM</span></p>
+
+<button onclick="createWallet()">Create Wallet</button>
+<button onclick="copyAddress()">Copy Address</button>
+<button onclick="receive()">Receive +100</button>
+
+<p id="copyMsg"></p>
+<p style="color:#facc15;">🛡️ SmartGuard Active</p>
+</div>
+
+<div class="grid">
+
+<div class="card">
+<h3>💸 Send Tokens</h3>
+<input id="to" placeholder="Recipient Address"><br>
+<input id="amount" placeholder="Amount"><br>
+<button onclick="send()">Send</button>
+<p id="tx"></p>
+</div>
+
+<div class="card">
+<h3>⛓️ Blockchain</h3>
+<p>🟢 Connected to Shardeum</p>
+<p style="font-size:12px;">Contract: 0xe7f17...0512</p>
+</div>
+
+</div>
+
+<div class="card">
+<h3>📜 History</h3>
+<div id="history"></div>
+</div>
+
+<div class="card">
+<h3>⭐ Insights</h3>
+<ul id="insights">
+<li>No data yet</li>
+</ul>
+</div>
+
+</div>
+
+<!-- AI CHAT BOX -->
+<div id="aiBox" style="display:none; position:fixed; bottom:20px; right:20px; background:#1e293b; padding:15px; border-radius:12px; width:260px; box-shadow:0 0 20px #38bdf8;">
+  <b>🤖 SmartGuard AI</b>
+  <div id="chat"></div>
+  <button onclick="confirmTx()">Proceed</button>
+</div>
+<div id="profile" style="display:none; padding:20px;">
+  <h2>👤 Profile</h2>
+
+  <input id="username" placeholder="Enter your name"><br>
+  <button onclick="createAccount()">Create Account</button>
+
+  <p id="welcomeMsg" style="margin-top:10px;"></p>
+
+  <hr>
+
+  <p><b>Wallet Status:</b> Connected</p>
+  <p><b>Security Level:</b> High</p>
+</div>
+<div id="settings" style="display:none; padding:20px;">
+  <h2>⚙️ Settings</h2>
+
+  <p>🔔 Notifications: Enabled</p>
+  <p>🛡️ SmartGuard Protection: Active</p>
+  <p>🌙 Dark Mode: Enabled</p>
+
+  <p style="margin-top:10px; color:#a855f7;">
+    Customize your wallet experience here.
+  </p>
+</div>
+<script>function createAccount() {
+  let name = document.getElementById("username").value;
+
+  if (!name) {
+    alert("Enter your name");
+    return;
+  }
+
+  document.getElementById("welcomeMsg").innerText =
+    "Welcome, " + name + " 👋";
+
+}
+function showPage(page) {
+  document.getElementById("home").style.display = "none";
+  document.getElementById("profile").style.display = "none";
+  document.getElementById("settings").style.display = "none";
+
+  document.getElementById(page).style.display = "block";
+}
+let balance = 0;
+let address = "";
+let pendingTx = null;
+
+function createWallet() {
+  address = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+  balance = 10000;
+
+  document.getElementById("address").innerText = address;
+  document.getElementById("balance").innerText = balance + " SHM";
+}
+
+function copyAddress() {
+  if (!address) return alert("Create wallet first");
+  document.getElementById("copyMsg").innerText = "Address: " + address;
+}
+
+function receive() {
+  balance += 100;
+  updateBalance();
+  addHistory("Received 100 SHM");
+}
+
+function send() {
+  let to = document.getElementById("to").value;
+  let amt = parseInt(document.getElementById("amount").value);
+
+  if (!to || !amt) return alert("Enter details");
+  if (amt > balance) return alert("Insufficient balance");
+
+  pendingTx = { to, amt };
+
+  document.getElementById("aiBox").style.display = "block";
+
+  simulateAI(to, amt);
+}
+
+function simulateAI(to, amt) {
+  let chat = document.getElementById("chat");
+  chat.innerHTML = "";
+
+  addBot("Analyzing transaction...");
+  addTyping();
+
+  setTimeout(() => {
+    removeTyping();
+    addBot("Checking risk factors...");
+    addTyping();
+  }, 800);
+
+  setTimeout(() => {
+    removeTyping();
+
+    let risk = "Low Risk ✅";
+    if (amt > 500) risk = "⚠️ High amount";
+    if (to.length < 10) risk = "🚨 Suspicious address";
+
+    addBot("Result: " + risk);
+    addBot("Advice: Proceed carefully.");
+  }, 1800);
+}
+
+function addBot(text) {
+  let div = document.createElement("div");
+  div.className = "chatMsg bot";
+  div.innerText = "🤖 " + text;
+  document.getElementById("chat").appendChild(div);
+}
+
+function addTyping() {
+  let div = document.createElement("div");
+  div.id = "typing";
+  div.className = "chatMsg bot typing";
+  div.innerText = "Typing...";
+  document.getElementById("chat").appendChild(div);
+}
+
+function removeTyping() {
+  let t = document.getElementById("typing");
+  if (t) t.remove();
+}
+
+function confirmTx() {
+  if (!pendingTx) return;
+
+  let to = pendingTx.to;
+  let amt = pendingTx.amt;
+
+  balance -= amt;
+  updateBalance();
+
+  document.getElementById("tx").innerText = "Transaction Successful ✅";
+
+  addHistory("Sent " + amt + " SHM → " + to);
+
+  generateInsights(amt);
+
+  document.getElementById("aiBox").style.display = "none";
+}
+
+function updateBalance() {
+  document.getElementById("balance").innerText = balance + " SHM";
+}
+
+function addHistory(text) {
+  let div = document.createElement("div");
+  div.className = "tx";
+  div.innerText = text;
+  document.getElementById("history").prepend(div);
+}
+
+function generateInsights(amount) {
+  let insights = document.getElementById("insights");
+  insights.innerHTML = "";
+
+  if (amount > 500) {
+    insights.innerHTML += "<li style='color:#f87171;'>⚠️ High spending detected</li>";
+  } else {
+    insights.innerHTML += "<li style='color:#22c55e;'>✅ Safe transaction</li>";
+  }
+
+  insights.innerHTML += "<li style='color:#facc15;'>📊 Smart analysis complete</li>";
+}
+
+</script>
+
+</body>
+</html>
